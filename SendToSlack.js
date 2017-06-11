@@ -45,10 +45,11 @@ server.post('/', (req, res) => {
     }
 
     if (discourseEventType === 'topic') {
-      const actorUsername = data.topic.details.created_by.username;
-      perEventPromise = discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
-        return discourse.getDiscourseTopic(data.topic.id, context).then((topicApiResponse) => {
-          return discourse.getDiscourseCategory(topicApiResponse.category_id, context).then((category) => {
+      perEventPromise = discourse.getDiscourseTopic(data.topic.id, context).then((topicApiResponse) => {
+        const actorUsername = topicApiResponse.details.created_by.username;
+        const categoryId = topicApiResponse.category_id;
+        return discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
+          return discourse.getDiscourseCategory(categoryId, context).then((category) => {
 
             const topic = topicApiResponse;
             const user = userApiResponse.user;
@@ -71,11 +72,12 @@ server.post('/', (req, res) => {
     }
 
     if (discourseEventType === 'post') {
-      const actorUsername = data.post.username;
-      perEventPromise = discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
-        return discourse.getDiscourseTopic(data.post.topic_id, context).then((topicApiResponse) => {
-          return discourse.getDiscoursePost(data.post.id, context).then((postApiResponse) => {
-            return discourse.getDiscourseCategory(topicApiResponse.category_id, context).then((category) => {
+      perEventPromise = discourse.getDiscoursePost(data.post.id, context).then((postApiResponse) => {
+        return discourse.getDiscourseTopic(postApiResponse.topic_id, context).then((topicApiResponse) => {
+          const categoryId = topicApiResponse.category_id;
+          const actorUsername = postApiResponse.username;
+          return discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
+            return discourse.getDiscourseCategory(categoryId, context).then((category) => {
 
               const topic = topicApiResponse;
               const user = userApiResponse.user;

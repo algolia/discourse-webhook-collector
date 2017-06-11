@@ -18,3 +18,7 @@ curl -X POST $url/SendToKeenDev --data '@./test/DiscourseTopicEvent.json' --head
 echo ''
 echo 'post - keen'
 curl -X POST $url/SendToKeenDev --data '@./test/DiscoursePostEvent.json' --header 'Content-Type: application/json' --header 'x-discourse-event-type: post' --header 'x-discourse-event: post_created'
+
+echo ''
+echo 'topic - helpscout'
+curl -X POST $url/SendToHelpScoutDev --data '@./test/DiscourseTopicEvent.json' --header 'Content-Type: application/json' --header 'x-discourse-event-type: topic' --header 'x-discourse-event: topic_created'

@@ -3,7 +3,9 @@
     "dev-send-to-keen": "wt create --name SendToKeenDev --bundle --no-parse --secrets-file .secrets.development --watch SendToKeen.js",
     "deploy-send-to-keen": "wt create --name SendToKeen --bundle --no-parse --secrets-file .secrets.production SendToKeen.js",
     "dev-send-to-slack": "wt create --name SendToSlackDev --bundle --no-parse --secrets-file .secrets.development --watch SendToSlack.js",
-    "deploy-send-to-slack": "wt create --name SendToSlack --bundle --no-parse --secrets-file .secrets.production SendToSlack.js"
+    "deploy-send-to-slack": "wt create --name SendToSlack --bundle --no-parse --secrets-file .secrets.production SendToSlack.js",
+    "dev-send-to-helpscout": "wt create --name SendToHelpScoutDev --bundle --no-parse --secrets-file .secrets.development --watch SendToHelpScout.js",
+    "deploy-send-to-helpscout": "wt create --name SendToHelpScout --bundle --no-parse --secrets-file .secrets.production SendToHelpScout.js"
   },
   "dependencies": {
     "body-parser": "^1.17.1",
