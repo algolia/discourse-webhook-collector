@@ -6,7 +6,7 @@ This repository contains a set of functions that catch Discourse webhooks, trans
 
 ![discourse-webhook-collector architecture](https://cl.ly/2Q0o3w3T0i3S/Screenshot%202017-06-11%2013.35.56.png)
 
-Currently included are [Slack](https://api.slack.com/), [Keen IO](https://keen.io/docs) and [HelpScout](http://developer.helpscout.net/help-desk-api/). Connecting more services would not be hard - PR's are welcome!
+Support is currently included for [Slack](https://api.slack.com/), [Keen IO](https://keen.io/docs) and [HelpScout](http://developer.helpscout.net/help-desk-api/), but you can deploy as few or as many as you like. Connecting more services would not be hard - PR's are welcome!
 
 These webhooks are designed to run on the [webtask.io](https://webtask.io/docs/101) function-as-a-service platform from [Auth0](https://auth0.com). Webtask functions are written in JavaScript and can take advantage of packages on NPM. If you don't have previous webtask experience, I would recommend [taking a tutorial](https://auth0.com/blog/building-serverless-apps-with-webtask/) before working with this repository.
 
