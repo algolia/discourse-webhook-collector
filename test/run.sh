@@ -1,5 +1,9 @@
 # export a $url variable in your shell containing your *.*.webtask.io domain
 
+echo 'topic - console'
+curl -X POST $url/SendToConsoleDev --data '@./test/DiscourseTopicEvent.json' --header 'Content-Type: application/json' --header 'x-discourse-event-type: topic' --header 'x-discourse-event: topic_created'
+
+echo ''
 echo 'user - slack'
 curl -X POST $url/SendToSlackDev --data '@./test/DiscourseUserEvent.json' --header 'Content-Type: application/json' --header 'x-discourse-event-type: user' --header 'x-discourse-event: user_created'
 echo ''

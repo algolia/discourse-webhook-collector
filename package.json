@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "dev-send-to-console": "wt create --name SendToConsoleDev --bundle --no-parse --secrets-file .secrets.development --watch SendToConsole.js",
     "dev-send-to-keen": "wt create --name SendToKeenDev --bundle --no-parse --secrets-file .secrets.development --watch SendToKeen.js",
     "deploy-send-to-keen": "wt create --name SendToKeen --bundle --no-parse --secrets-file .secrets.production SendToKeen.js",
     "dev-send-to-slack": "wt create --name SendToSlackDev --bundle --no-parse --secrets-file .secrets.development --watch SendToSlack.js",
