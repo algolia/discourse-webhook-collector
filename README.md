@@ -178,6 +178,8 @@ yarn run deploy-send-to-keen
 
 The corresponding webtask names to put in your Discourse Payload URL are `SendToKeenDev` and `SendToKeen`.
 
+If you want a head start on creating Keen IO dashboards for your Discourse activity, have a look at [vue-keen-dashboards](https://github.com/algolia/vue-keen-dashboards). Includes authentication and deploys easily to Netlify.
+
 ### HelpScout
 
 These are the secrets values that are required:
