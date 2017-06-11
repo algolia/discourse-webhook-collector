@@ -1,0 +1,20 @@
+{
+  "scripts": {
+    "dev-send-to-keen": "wt create --name SendToKeenDev --bundle --no-parse --secrets-file .secrets.development --watch SendToKeen.js",
+    "deploy-send-to-keen": "wt create --name SendToKeen --bundle --no-parse --secrets-file .secrets.production SendToKeen.js",
+    "dev-send-to-slack": "wt create --name SendToSlackDev --bundle --no-parse --secrets-file .secrets.development --watch SendToSlack.js",
+    "deploy-send-to-slack": "wt create --name SendToSlack --bundle --no-parse --secrets-file .secrets.production SendToSlack.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "4.15.x",
+    "keen-tracking": "^1.1.3",
+    "lodash.find": "^4.6.0",
+    "lodash.map": "^4.6.0",
+    "lodash.pick": "^4.4.0",
+    "lodash.reduce": "^4.6.0",
+    "lodash.sortby": "^4.7.0",
+    "request": "^2.81.0",
+    "webtask-tools": "^3.2.0"
+  }
+}
