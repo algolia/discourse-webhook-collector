@@ -4,7 +4,7 @@
 
 This repository contains a set of functions that catch Discourse webhooks, transform or enrich the JSON payload, and then call other downstream APIs and SaaS services.
 
-![discourse-webhook-collector architecture](https://cl.ly/3p0v2l1A3528/Screenshot%202017-06-11%2013.29.46.png)
+![discourse-webhook-collector architecture](https://cl.ly/2Q0o3w3T0i3S/Screenshot%202017-06-11%2013.35.56.png)
 
 Currently included are [Slack](https://api.slack.com/), [Keen IO](https://keen.io/docs) and [HelpScout](http://developer.helpscout.net/help-desk-api/). Connecting more services would not be hard - PR's are welcome!
 
