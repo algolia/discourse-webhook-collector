@@ -62,7 +62,9 @@ yarn run dev-send-to-keen
 
 ### Deployment
 
-Deployment and development are almost identical. The only difference is the use of a `.secrets.production` file for separate deploy tasks that create webtasks with different names. They are:
+Deployment and development are almost identical. The only difference is the use of a `.secrets.production` file for separate deploy tasks that create webtasks with different names. If you don't need separate environments, just copy your `.secrets.development` file to `.secrets.production`.
+
+They are:
 
 ```
 yarn run deploy-send-to-slack
