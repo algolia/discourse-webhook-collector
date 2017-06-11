@@ -1,6 +1,6 @@
 # discourse-webhook-collector
 
-[Discourse](https://discourse.org) has [webhooks](https://meta.discourse.org/t/setting-up-webhooks/49045), which are very helpful for connecting it to other things so you can [scale your community](https://speakerdeck.com/dzello/scaling-community-by-webhooking-the-things).
+[Discourse](https://discourse.org) has [webhooks](https://meta.discourse.org/t/setting-up-webhooks/49045). These are very helpful for connecting Discourse to other things so you can [scale your community](https://speakerdeck.com/dzello/scaling-community-by-webhooking-the-things).
 
 This repository contains a set of functions that catch Discourse webhooks, transform or enrich the JSON payload, and then call other downstream APIs and SaaS services. Currently included are [Slack](https://api.slack.com/), [Keen IO](https://keen.io/docs) and [HelpScout](http://developer.helpscout.net/help-desk-api/). Connecting more services would not be hard - PR's are welcome!
 
@@ -8,9 +8,11 @@ These webhooks are designed to run on the [webtask.io](https://webtask.io/docs/1
 
 ## Prerequisites
 
-You will need admin access to running Discourse instance and [wt-cli](https://github.com/auth0/wt-cli) with an active webtask profile. Depending on which webhooks you want to use, you will need to access to projects and API keys for the various supported services.
+You will need admin access to running Discourse instance and [wt-cli](https://github.com/auth0/wt-cli) with an active webtask profile. Depending on which webhooks you want to use, you will need access to projects and API keys for the various supported services.
 
-## Getting started
+Commands like `wt ls` and `wt create` should be working in your console before you begin.
+
+## Getting Started
 
 The `SendToConsole` task simply logs a few Discourse-specific HTTP headers and the JSON body to the console. It's best to make sure you can run this successfully before connecting other downstream APIs.
 
@@ -37,12 +39,16 @@ yarn run dev-send-to-console
 The shortcut is just a wrapper for this wt-cli command:
 
 ```
+# you don't need to run this
 wt create --name SendToConsoleDev --bundle --no-parse --secrets-file .secrets.development --watch SendToConsole.js
 ```
 
-`--no-parse` is used to work around limits with large event bodies, which Discourse has been known to omit. `--bundle` allows us to put code in multiple files. `--name` is the name of the webtask. It's very helpful two have two versions of each function deployed at the same time - one for live development and one for production. The development version webtask names are always suffixed with "Dev" and use `.secrets.development` instead of `.secrets.production` so you can specify different non-production downstream targets, like a Slack channel or Keen IO project that's used just for testing.
+Here's a breakdown of the command:
 
-`--watch` keeps the process attached to the webtask, so you can see logs when it's invoked and so that any code changes you make are automatically uploaded (this is especially why you shouldn't use it for production).
+- `--no-parse` is used to work around webtask HTTP payload size limits
+- `--bundle` allows us to put code in multiple files to make development cleaner
+- `--name` is the name of the webtask. It's very helpful two have two versions of each function deployed at the same time - one for live development and one for production. The development version webtask names are always suffixed with "Dev" and use `.secrets.development` instead of `.secrets.production` so you can specify different non-production downstream targets, like a Slack channel or Keen IO project that's used just for testing.
+- `--watch` keeps the process attached to the webtask, so you can see logs when it's invoked and so that any code changes you make are automatically uploaded (this is especially why you shouldn't use it for production).
 
 Now that our `SendToConsoleDev` webtask has been created, let's test it with cURL. In a new shell, export a `url` variable that points to your webtask profile domain:
 
@@ -50,7 +56,7 @@ Now that our `SendToConsoleDev` webtask has been created, let's test it with cUR
 export url=https://<your-subdomain>.<region-subdomain>.webtask.io
 ```
 
-Now, run a command shortcut that will send a cURL request to your new webtask:
+Now, run a command shortcut that will send a cURL request to your new webtask using a JSON file in the `test` directory of this repository:
 
 ```
 yarn test-send-to-console
@@ -59,6 +65,7 @@ yarn test-send-to-console
 Which is just a shortcut for:
 
 ```
+# you don't need to run this
 curl -X POST $url/SendToConsoleDev --data '@./test/DiscourseTopicEvent.json' --header 'Content-Type: application/json' --header 'x-discourse-event-type: topic' --header 'x-discourse-event: topic_created'
 ```
 
@@ -81,13 +88,13 @@ If you do, that means that your webtask setup is working properly. Hooray!
 
 ## Connecting Discourse
 
-Now you're ready to add webhooks to your Discourse instance from the admin console. In your admin console, navigate to API, then webhooks, then click the button for "New webhook".
+Now you're ready to add webhooks to your Discourse instance. In your Discourse admin UI, navigate to API, then webhooks, then click the button for "New webhook".
 
-Let's create a webhook for our `SendToConsoleDev` webtask. The Payload URL is the key field to populate, as follows:
+Let's create a webhook that points to our `SendToConsoleDev` webtask. The Payload URL is the key field to populate, substituting the right values for your webtask domain:
 
 ![Discourse create webhook UI](https://cl.ly/1b3h371R2k06/Screenshot%202017-06-11%2012.27.57.png)
 
-Make sure to substitute the right values for your webtask domain. Choose "Send me everything" from the event types section, or select just the events that you'd like to test with. Check the "Active" checkbox and then click "Create". Click "Go to events" and then click the "Ping" button. You should see the following in your webtask log:
+ Choose "Send me everything" from the event types section or select just the subset of events that you'd like to test with. Check the "Active" checkbox and then click "Create". Click "Go to events" and then click the "Ping" button. You should see the following in your webtask log:
 
 ```
 SendToConsole - Received webhook
@@ -100,30 +107,30 @@ SendToConsole - JSON payload:
 SendToConsole Success
 ```
 
-This means that your Discourse can successfully send events to your webtasks. Depending on what event types you chose, you will start seeing output when topics, posts and user events happen.
+If you see this in the logs, your Discourse can successfully send events to your webtasks. Yay! Depending on what event types you chose, you will start seeing output when topics, posts and user events happen.
 
 ## Connecting APIs
 
-Just logging to the console isn't very interesting. Ideally, we want to forward this activity to some APIs.
+Just logging to the console isn't very interesting. Calling APIs would definitely be more interesting.
 
 ### Prerequisite - Discourse API access
 
-Discourse webhook JSON payloads do not always contain all of the information that we want and payloads vary greatly based on the event type. That makes it difficult to keep event schema consistent for forwarding to analytics services like Keen IO.
+Discourse webhook JSON payloads do not always contain all of the information that we want and contents vary greatly based on the event type. That makes it difficult to keep event schema consistent for forwarding to analytics services like Keen IO.
 
 The solution that discourse-webhook-collector proposes is not to patch Discourse or use a plugin (at least not yet) but to use the Discourse API to fetch the missing JSON. Do this, discourse-webhook-collector needs to know the location of your Discourse instance and have an API key with admin access.
 
-To find or generate a Discourse API key, navigate to "API" and then "API" in the submenu of your Discourse admin interface.
+To find or generate a Discourse API key, navigate to "API" and then "API" in the submenu that appears.
 
-One you have the API key, put it and the domain in your `.secrets.development` and `.secrets.production` files, like so:
+Put the API key and the domain of your Discourse in your `.secrets.development` and `.secrets.production` files, like so:
 
 ```
-DISCOURSE_URL=https://discourse.<my-domain>.com
+DISCOURSE_URL=https://<my-discourse-domain>
 DISCOURSE_API_KEY=<my-discourse-api-key>
 ```
 
 ### Slack
 
-Before beginning, create an [incoming webhook](https://api.slack.com/incoming-webhooks) using the Slack API that reflects what channel you'd like activity to go to. Copy the webhook URL and add it to the secrets files. (You may want to use different values for `.secrets.development` and `.secrets.production` if you'd like to separate your testing from live messages.)
+Before beginning, create an [incoming webhook](https://api.slack.com/incoming-webhooks) using the Slack API pointing to the channel where you want Discourse activity to go to. Copy the webhook URL and add it to the secrets files. (You may want to use different values for `.secrets.development` and `.secrets.production` if you'd like to separate your testing from live messages.)
 
 ```
 SLACK_WEBHOOK_URL=<my-slack-webhook-url>
