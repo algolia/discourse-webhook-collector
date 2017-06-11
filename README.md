@@ -2,7 +2,11 @@
 
 [Discourse](https://discourse.org) has [webhooks](https://meta.discourse.org/t/setting-up-webhooks/49045). These are very helpful for connecting Discourse to other things so you can [scale your community](https://speakerdeck.com/dzello/scaling-community-by-webhooking-the-things).
 
-This repository contains a set of functions that catch Discourse webhooks, transform or enrich the JSON payload, and then call other downstream APIs and SaaS services. Currently included are [Slack](https://api.slack.com/), [Keen IO](https://keen.io/docs) and [HelpScout](http://developer.helpscout.net/help-desk-api/). Connecting more services would not be hard - PR's are welcome!
+This repository contains a set of functions that catch Discourse webhooks, transform or enrich the JSON payload, and then call other downstream APIs and SaaS services.
+
+![discourse-webhook-collector architecture](https://cl.ly/3p0v2l1A3528/Screenshot%202017-06-11%2013.29.46.png)
+
+Currently included are [Slack](https://api.slack.com/), [Keen IO](https://keen.io/docs) and [HelpScout](http://developer.helpscout.net/help-desk-api/). Connecting more services would not be hard - PR's are welcome!
 
 These webhooks are designed to run on the [webtask.io](https://webtask.io/docs/101) function-as-a-service platform from [Auth0](https://auth0.com). Webtask functions are written in JavaScript and can take advantage of packages on NPM. If you don't have previous webtask experience, I would recommend [taking a tutorial](https://auth0.com/blog/building-serverless-apps-with-webtask/) before working with this repository.
 
