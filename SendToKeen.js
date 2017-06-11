@@ -3,7 +3,9 @@
 var Express = require('express');
 var Webtask = require('webtask-tools');
 var bodyParser = require('body-parser');
-var helpers = require('./lib/helpers');
+
+var discourse = require('./lib/discourse');
+var keen = require('./lib/keen');
 
 var server = Express();
 
@@ -36,22 +38,22 @@ server.post('/', (req, res) => {
 
     if (discourseEventType === 'user') {
       const actorUsername = data.user.username;
-      perEventPromise = helpers.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
+      perEventPromise = discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
         Object.assign(keenEventBase, {
-          user: helpers.userForEvent(userApiResponse)
+          user: keen.userForEvent(userApiResponse)
         });
       });
     }
 
     if (discourseEventType === 'topic') {
       const actorUsername = data.topic.details.created_by.username;
-      perEventPromise = helpers.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
-        return helpers.getDiscourseTopic(data.topic.id, context).then((topicApiResponse) => {
-          return helpers.getDiscourseCategory(topicApiResponse.category_id, context).then((category) => {
+      perEventPromise = discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
+        return discourse.getDiscourseTopic(data.topic.id, context).then((topicApiResponse) => {
+          return discourse.getDiscourseCategory(topicApiResponse.category_id, context).then((category) => {
             Object.assign(keenEventBase, {
-              user: helpers.userForEvent(userApiResponse),
-              topic: helpers.topicForEvent(topicApiResponse),
-              category: category ? helpers.categoryForEvent(category) : {}
+              user: keen.userForEvent(userApiResponse),
+              topic: keen.topicForEvent(topicApiResponse),
+              category: category ? keen.categoryForEvent(category) : {}
             });
           });
         });
@@ -60,15 +62,15 @@ server.post('/', (req, res) => {
 
     if (discourseEventType === 'post') {
       const actorUsername = data.post.username;
-      perEventPromise = helpers.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
-        return helpers.getDiscourseTopic(data.post.topic_id, context).then((topicApiResponse) => {
-          return helpers.getDiscoursePost(data.post.id, context).then((postApiResponse) => {
-            return helpers.getDiscourseCategory(topicApiResponse.category_id, context).then((category) => {
+      perEventPromise = discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
+        return discourse.getDiscourseTopic(data.post.topic_id, context).then((topicApiResponse) => {
+          return discourse.getDiscoursePost(data.post.id, context).then((postApiResponse) => {
+            return discourse.getDiscourseCategory(topicApiResponse.category_id, context).then((category) => {
               Object.assign(keenEventBase, {
-                user: helpers.userForEvent(userApiResponse),
-                post: helpers.postForEvent(postApiResponse),
-                topic: helpers.topicForEvent(topicApiResponse),
-                category: category ? helpers.categoryForEvent(category) : {}
+                user: keen.userForEvent(userApiResponse),
+                post: keen.postForEvent(postApiResponse),
+                topic: keen.topicForEvent(topicApiResponse),
+                category: category ? keen.categoryForEvent(category) : {}
               });
             });
           });
@@ -78,7 +80,7 @@ server.post('/', (req, res) => {
 
     return perEventPromise.then(() => {
 
-      return helpers.recordKeenEvent(keenCollectionName, keenEventBase, context);
+      return keen.recordKeenEvent(keenCollectionName, keenEventBase, context);
 
     }).then(() => {
 

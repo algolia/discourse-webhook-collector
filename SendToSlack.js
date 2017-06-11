@@ -3,7 +3,9 @@
 var Express = require('express');
 var Webtask = require('webtask-tools');
 var bodyParser = require('body-parser');
-var helpers = require('./lib/helpers');
+
+var discourse = require('./lib/discourse');
+var slack = require('./lib/slack');
 
 var server = Express();
 
@@ -26,16 +28,16 @@ server.post('/', (req, res) => {
 
     if (discourseEventType === 'user') {
       const actorUsername = data.user.username;
-      perEventPromise = helpers.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
+      perEventPromise = discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
 
         const user = userApiResponse.user;
         const title = '';
 
-        const attachment = helpers.getSimpleSlackAttachment(user, title, '', '', context);
+        const attachment = slack.getSimpleSlackAttachment(user, title, '', '', context);
         attachment.color = '#3369E7';
         attachment.footer = `Discourse: ${discourseEvent}`;
 
-        return helpers.postSlackMessage({
+        return slack.postSlackMessage({
           attachments: [attachment]
         }, context.secrets.SLACK_WEBHOOK_URL);
 
@@ -44,22 +46,22 @@ server.post('/', (req, res) => {
 
     if (discourseEventType === 'topic') {
       const actorUsername = data.topic.details.created_by.username;
-      perEventPromise = helpers.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
-        return helpers.getDiscourseTopic(data.topic.id, context).then((topicApiResponse) => {
-          return helpers.getDiscourseCategory(topicApiResponse.category_id, context).then((category) => {
+      perEventPromise = discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
+        return discourse.getDiscourseTopic(data.topic.id, context).then((topicApiResponse) => {
+          return discourse.getDiscourseCategory(topicApiResponse.category_id, context).then((category) => {
 
             const topic = topicApiResponse;
             const user = userApiResponse.user;
 
             const title = `[${category.name}] ${topic.title}`;
-            const titleLink = helpers.link(`t/${topic.slug}/${topic.id}`, context);
+            const titleLink = discourse.link(`t/${topic.slug}/${topic.id}`, context);
 
-            const attachment = helpers.getSimpleSlackAttachment(user, title, titleLink, '', context);
-            helpers.addTagsField(attachment, topic, context);
+            const attachment = slack.getSimpleSlackAttachment(user, title, titleLink, '', context);
+            slack.addTagsField(attachment, topic, context);
             attachment.color = category.color;
             attachment.footer = `Discourse: ${discourseEvent}`;
 
-            return helpers.postSlackMessage({
+            return slack.postSlackMessage({
               attachments: [attachment]
             }, context.secrets.SLACK_WEBHOOK_URL);
 
@@ -70,23 +72,23 @@ server.post('/', (req, res) => {
 
     if (discourseEventType === 'post') {
       const actorUsername = data.post.username;
-      perEventPromise = helpers.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
-        return helpers.getDiscourseTopic(data.post.topic_id, context).then((topicApiResponse) => {
-          return helpers.getDiscoursePost(data.post.id, context).then((postApiResponse) => {
-            return helpers.getDiscourseCategory(topicApiResponse.category_id, context).then((category) => {
+      perEventPromise = discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
+        return discourse.getDiscourseTopic(data.post.topic_id, context).then((topicApiResponse) => {
+          return discourse.getDiscoursePost(data.post.id, context).then((postApiResponse) => {
+            return discourse.getDiscourseCategory(topicApiResponse.category_id, context).then((category) => {
 
               const topic = topicApiResponse;
               const user = userApiResponse.user;
 
               const title = `[${category.name}] ${topic.title}`;
-              const titleLink = helpers.link(`t/${topic.slug}/${topic.id}/${postApiResponse.post_number}`, context);
+              const titleLink = discourse.link(`t/${topic.slug}/${topic.id}/${postApiResponse.post_number}`, context);
 
-              const attachment = helpers.getSimpleSlackAttachment(user, title, titleLink, postApiResponse.raw, context);
-              helpers.addTagsField(attachment, topicApiResponse, context);
+              const attachment = slack.getSimpleSlackAttachment(user, title, titleLink, postApiResponse.raw, context);
+              slack.addTagsField(attachment, topicApiResponse, context);
               attachment.color = category.color;
               attachment.footer = `Discourse: ${discourseEvent}`;
 
-              return helpers.postSlackMessage({
+              return slack.postSlackMessage({
                 attachments: [attachment]
               }, context.secrets.SLACK_WEBHOOK_URL);
 
