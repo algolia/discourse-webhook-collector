@@ -63,7 +63,7 @@ export url=https://<your-subdomain>.<region-subdomain>.webtask.io
 Now, run a command shortcut that will send a cURL request to your new webtask using a JSON file in the `test` directory of this repository:
 
 ```
-yarn test-send-to-console
+yarn run test-send-to-console
 ```
 
 Which is just a shortcut for:
