@@ -39,7 +39,7 @@ server.post('/', (req, res) => {
 
         return slack.postSlackMessage({
           attachments: [attachment]
-        }, context.secrets.SLACK_WEBHOOK_URL);
+        }, context.secrets.SEND_TO_SLACK_WEBHOOK_URL);
 
       });
     }
@@ -64,7 +64,7 @@ server.post('/', (req, res) => {
 
             return slack.postSlackMessage({
               attachments: [attachment]
-            }, context.secrets.SLACK_WEBHOOK_URL);
+            }, context.secrets.SEND_TO_SLACK_WEBHOOK_URL);
 
           });
         });
@@ -92,7 +92,7 @@ server.post('/', (req, res) => {
 
               return slack.postSlackMessage({
                 attachments: [attachment]
-              }, context.secrets.SLACK_WEBHOOK_URL);
+              }, context.secrets.SEND_TO_SLACK_WEBHOOK_URL);
 
             });
           });

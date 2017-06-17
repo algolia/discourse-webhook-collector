@@ -62,7 +62,7 @@ server.post('/', (req, res) => {
     }
 
     if (discourseEventType === 'post') {
-      perEventPromise =discourse.getDiscoursePost(data.post.id, context).then((postApiResponse)  => {
+      perEventPromise = discourse.getDiscoursePost(data.post.id, context).then((postApiResponse)  => {
         return discourse.getDiscourseTopic(postApiResponse.topic_id, context).then((topicApiResponse) => {
           const categoryId = topicApiResponse.category_id;
           const actorUsername = postApiResponse.username;
