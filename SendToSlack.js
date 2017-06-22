@@ -36,6 +36,7 @@ server.post('/', (req, res) => {
         const attachment = slack.getSimpleSlackAttachment(user, title, '', '', context);
         attachment.color = '#3369E7';
         attachment.footer = `Discourse: ${discourseEvent}`;
+        slack.addCustomerField(attachment, user);
 
         return slack.postSlackMessage({
           attachments: [attachment]
@@ -58,6 +59,7 @@ server.post('/', (req, res) => {
             const titleLink = discourse.link(`t/${topic.slug}/${topic.id}`, context);
 
             const attachment = slack.getSimpleSlackAttachment(user, title, titleLink, '', context);
+            slack.addCustomerField(attachment, user);
             slack.addTagsField(attachment, topic, context);
             attachment.color = category.color;
             attachment.footer = `Discourse: ${discourseEvent}`;
@@ -86,6 +88,7 @@ server.post('/', (req, res) => {
               const titleLink = discourse.link(`t/${topic.slug}/${topic.id}/${postApiResponse.post_number}`, context);
 
               const attachment = slack.getSimpleSlackAttachment(user, title, titleLink, postApiResponse.raw, context);
+              slack.addCustomerField(attachment, user);
               slack.addTagsField(attachment, topicApiResponse, context);
               attachment.color = category.color;
               attachment.footer = `Discourse: ${discourseEvent}`;
