@@ -50,7 +50,7 @@ module.exports = (context, cb) => {
           email: callbackPayload.user.email,
           subject: topic.title,
           body: body,
-          tags: ['discourse', callbackPayload.category.slug].concat(topic.tags)
+          tags: ['discourse'].concat(topic.tags).concat(callbackPayload.category.slug ? callbackPayload.category.slug : [])
         }, context);
 
       })()

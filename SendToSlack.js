@@ -24,6 +24,7 @@ server.post('/', (req, res) => {
     const discourseEventType = context.headers['x-discourse-event-type'];
     const discourseEvent = context.headers['x-discourse-event'];
 
+    let skipped = false;
     let perEventPromise;
 
     if (discourseEventType === 'user') {
@@ -52,16 +53,22 @@ server.post('/', (req, res) => {
         return discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
           return discourse.getDiscourseCategory(categoryId, context).then((category) => {
 
+            // don't send private messages to slack
+            if (topicApiResponse.archetype === 'private_message') {
+              skipped = true;
+              return;
+            }
+
             const topic = topicApiResponse;
             const user = userApiResponse.user;
 
-            const title = `[${category.name}] ${topic.title}`;
+            const title = category ? `[${category.name}] ${topic.title}` : topic.title;
             const titleLink = discourse.link(`t/${topic.slug}/${topic.id}`, context);
 
             const attachment = slack.getSimpleSlackAttachment(user, title, titleLink, '', context);
             slack.addCustomerField(attachment, user);
             slack.addTagsField(attachment, topic, context);
-            attachment.color = category.color;
+            attachment.color = category ? category.color : '';
             attachment.footer = `Discourse: ${discourseEvent}`;
 
             return slack.postSlackMessage({
@@ -81,16 +88,22 @@ server.post('/', (req, res) => {
           return discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
             return discourse.getDiscourseCategory(categoryId, context).then((category) => {
 
+              // don't send private messages or system posts to slack
+              if (topicApiResponse.archetype === 'private_message' || postApiResponse.username === 'system') {
+                skipped = true;
+                return;
+              }
+
               const topic = topicApiResponse;
               const user = userApiResponse.user;
 
-              const title = `[${category.name}] ${topic.title}`;
+              const title = category ? `[${category.name}] ${topic.title}` : topic.title;
               const titleLink = discourse.link(`t/${topic.slug}/${topic.id}/${postApiResponse.post_number}`, context);
 
               const attachment = slack.getSimpleSlackAttachment(user, title, titleLink, postApiResponse.raw, context);
               slack.addCustomerField(attachment, user);
               slack.addTagsField(attachment, topicApiResponse, context);
-              attachment.color = category.color;
+              attachment.color = category ? category.color : '';
               attachment.footer = `Discourse: ${discourseEvent}`;
 
               return slack.postSlackMessage({
@@ -105,8 +118,8 @@ server.post('/', (req, res) => {
 
     return perEventPromise.then(() => {
 
-      console.log('SendToSlack Success');
-      res.json({ ok: true });
+      console.log(skipped ? 'SendToSlack Skipped' : 'SendToSlack Success');
+      res.json({ ok: true, skipped });
 
     }).catch((error) => {
 

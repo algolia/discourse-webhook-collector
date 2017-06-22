@@ -34,6 +34,7 @@ server.post('/', (req, res) => {
     // assumption now is that actor = creator of the object in question
     // which will at least be true for all create events
 
+    let skip = false;
     let perEventPromise;
 
     if (discourseEventType === 'user') {
@@ -51,6 +52,10 @@ server.post('/', (req, res) => {
         const categoryId = topicApiResponse.category_id;
         return discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
           return discourse.getDiscourseCategory(categoryId, context).then((category) => {
+            // don't send private or system topics to keen
+            if (topicApiResponse.archetype === 'private_message') {
+              skip = true;
+            }
             Object.assign(keenEventBase, {
               user: keen.userForEvent(userApiResponse),
               topic: keen.topicForEvent(topicApiResponse),
@@ -68,6 +73,11 @@ server.post('/', (req, res) => {
           const actorUsername = postApiResponse.username;
           return discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
             return discourse.getDiscourseCategory(categoryId, context).then((category) => {
+              // don't send private or system topics to keen
+              if (postApiResponse.username === 'system' ||
+                  topicApiResponse.archetype === 'private_message') {
+                skip = true;
+              }
               Object.assign(keenEventBase, {
                 user: keen.userForEvent(userApiResponse),
                 post: keen.postForEvent(postApiResponse),
@@ -80,22 +90,31 @@ server.post('/', (req, res) => {
       });
     }
 
-    return perEventPromise.then(() => {
+    if (skip) {
 
-      return keen.recordKeenEvent(keenCollectionName, keenEventBase, context);
+      console.log('SendToKeen Skipped');
+      res.json({ ok: true, skipped: true });
 
-    }).then(() => {
+    } else {
 
-      console.log('SendToKeen Success');
-      res.json({ ok: true });
+      return perEventPromise.then(() => {
 
-    }).catch((error) => {
+        return keen.recordKeenEvent(keenCollectionName, keenEventBase, context);
 
-      console.error('SendToKeen Failure', error);
-      console.trace(error);
-      res.status(500).send(error);
+      }).then(() => {
 
-    });
+        console.log('SendToKeen Success');
+        res.json({ ok: true, skipped: false });
+
+      }).catch((error) => {
+
+        console.error('SendToKeen Failure', error);
+        console.trace(error);
+        res.status(500).send(error);
+
+      });
+
+    }
 
   } catch (error) {
     console.error('SendToKeen Error', error);

@@ -25,6 +25,7 @@ server.post('/', (req, res) => {
 
     const discourseEvent = context.headers['x-discourse-event'];
 
+    let skipped = false;
     let perEventPromise;
 
     // only supported for topic_created
@@ -38,10 +39,16 @@ server.post('/', (req, res) => {
           return discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
             return discourse.getDiscourseCategory(categoryId, context).then((category) => {
 
+              // don't send private messages or system posts to slack
+              if (topicApiResponse.archetype === 'private_message' || postApiResponse.username === 'system') {
+                skipped = true;
+                return;
+              }
+
               const topic = topicApiResponse;
               const user = userApiResponse.user;
 
-              const title = `[${category.name}] ${topic.title}`;
+              const title = category ? `[${category.name}] ${topic.title}` : topic.title;
               const topicLink = `${discourse.link(`t/${topic.slug}/${topic.id}`, context)}`;
               const tagsLink = map(topic.tags, (tag) => (`<${discourse.link(`tags/${tag}`, context)}|${tag}>`)).join(', ');
 
@@ -50,7 +57,7 @@ server.post('/', (req, res) => {
 
               const callbackId = JSON.stringify({
                 topic: pick(topic, ['id']),
-                category: pick(category, ['id', 'name', 'slug']),
+                category: category ? pick(category, ['id', 'name', 'slug']) : {},
                 user: pick(user, ['id', 'name', 'username', 'email'])
               });
 
@@ -58,7 +65,7 @@ server.post('/', (req, res) => {
                 fallback: title,
                 title: title,
                 title_link: topicLink,
-                color: category.color,
+                color: category ? category.color : '',
                 callback_id: callbackId,
                 author_name: `${user.name} @${user.username}`,
                 author_link: discourse.link(`users/${user.username}/summary`, context),
@@ -107,24 +114,25 @@ server.post('/', (req, res) => {
         });
       });
 
+      return perEventPromise.then(() => {
+
+        console.log(skipped ? 'SendToSlackInteractive Skipped' : 'SendToSlackInteractive Success');
+        res.json({ ok: true, skipped });
+
+      }).catch((error) => {
+
+        console.error('SendToSlackInteractive Failure', error);
+        console.trace(error);
+        res.status(500).send(error);
+
+      });
+
     } else {
 
-      perEventPromise = Promise.resolve();
+      console.log('SendToSlackInteractive IgnoredEvent');
+      res.json({ ok: true, ignored: true, skipped: true });
 
     }
-
-    return perEventPromise.then(() => {
-
-      console.log('SendToSlackInteractive Success');
-      res.json({ ok: true });
-
-    }).catch((error) => {
-
-      console.error('SendToSlackInteractive Failure', error);
-      console.trace(error);
-      res.status(500).send(error);
-
-    });
 
   } catch (error) {
     console.error('SendToSlackInteractive Error', error);
