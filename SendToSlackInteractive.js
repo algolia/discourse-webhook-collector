@@ -14,7 +14,7 @@ var server = Express();
 // use express to work around 1MB payload limit
 // make sure to use --no-parse when creating the webtask
 server.use(bodyParser.urlencoded({ extended: false }));
-server.use(bodyParser.json());
+server.use(bodyParser.json({ limit: '50mb' }));
 
 server.post('/', (req, res) => {
 
