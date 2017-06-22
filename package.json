@@ -9,7 +9,7 @@
     "dev-send-to-slack-interactive": "wt create --profile $WEBTASK_PROFILE --name SendToSlackInteractiveDev --bundle --no-parse --secrets-file .secrets.development --watch SendToSlackInteractive.js",
     "deploy-send-to-slack-interactive": "wt create --profile $WEBTASK_PROFILE --name SendToSlackInteractive --bundle --no-parse --secrets-file .secrets.production SendToSlackInteractive.js",
     "dev-receive-slack-interaction": "wt create --profile $WEBTASK_PROFILE --name ReceiveSlackInteractionDev --bundle --secrets-file .secrets.development --watch ReceiveSlackInteraction.js",
-    "deploy-receive-slack-interaction": "wt create --profile $WEBTASK_PROFILE --name ReceiveSlackInteraction --bundle --secrets-file .secrets.production --watch ReceiveSlackInteraction.js",
+    "deploy-receive-slack-interaction": "wt create --profile $WEBTASK_PROFILE --name ReceiveSlackInteraction --bundle --secrets-file .secrets.production ReceiveSlackInteraction.js",
     "dev-send-keen-report-to-slack": "wt create --profile $WEBTASK_PROFILE --name SendKeenReportToSlackDev --bundle --secrets-file .secrets.development --watch SendKeenReportToSlack.js",
     "schedule-send-keen-report-to-slack-dev": "wt cron schedule --profile $WEBTASK_PROFILE --name SendKeenReportToSlack --bundle --secrets-file .secrets.development \"0 8 * * *\" SendKeenReportToSlack.js",
     "dev-send-to-helpscout": "wt create --profile $WEBTASK_PROFILE --name SendToHelpScoutDev --bundle --no-parse --secrets-file .secrets.development --watch SendToHelpScout.js",
