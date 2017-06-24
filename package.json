@@ -1,17 +1,24 @@
 {
   "scripts": {
-    "dev-send-to-console": "wt create --name SendToConsoleDev --bundle --no-parse --secrets-file .secrets.development --watch SendToConsole.js",
-    "test-send-to-console": "curl -X POST $url/SendToConsoleDev --data '@./test/DiscourseTopicEvent.json' --header 'Content-Type: application/json' --header 'x-discourse-event-type: topic' --header 'x-discourse-event: topic_created'",
-    "dev-send-to-keen": "wt create --name SendToKeenDev --bundle --no-parse --secrets-file .secrets.development --watch SendToKeen.js",
-    "deploy-send-to-keen": "wt create --name SendToKeen --bundle --no-parse --secrets-file .secrets.production SendToKeen.js",
-    "dev-send-to-slack": "wt create --name SendToSlackDev --bundle --no-parse --secrets-file .secrets.development --watch SendToSlack.js",
-    "deploy-send-to-slack": "wt create --name SendToSlack --bundle --no-parse --secrets-file .secrets.production SendToSlack.js",
-    "dev-send-to-helpscout": "wt create --name SendToHelpScoutDev --bundle --no-parse --secrets-file .secrets.development --watch SendToHelpScout.js",
-    "deploy-send-to-helpscout": "wt create --name SendToHelpScout --bundle --no-parse --secrets-file .secrets.production SendToHelpScout.js"
+    "dev-send-to-console": "wt create --profile $WEBTASK_PROFILE --name SendToConsoleDev --bundle --no-parse --secrets-file .secrets.development --watch SendToConsole.js",
+    "test-send-to-console": "curl -X POST $WEBTASK_URL/SendToConsoleDev --data '@./test/DiscourseTopicEvent.json' --header 'Content-Type: application/json' --header 'x-discourse-event-type: topic' --header 'x-discourse-event: topic_created'",
+    "dev-send-to-keen": "wt create --profile $WEBTASK_PROFILE --name SendToKeenDev --bundle --no-parse --secrets-file .secrets.development --watch SendToKeen.js",
+    "deploy-send-to-keen": "wt create --profile $WEBTASK_PROFILE --name SendToKeen --bundle --no-parse --secrets-file .secrets.production SendToKeen.js",
+    "dev-send-to-slack": "wt create --profile $WEBTASK_PROFILE --name SendToSlackDev --bundle --no-parse --secrets-file .secrets.development --watch SendToSlack.js",
+    "deploy-send-to-slack": "wt create --profile $WEBTASK_PROFILE --name SendToSlack --bundle --no-parse --secrets-file .secrets.production SendToSlack.js",
+    "dev-send-to-slack-interactive": "wt create --profile $WEBTASK_PROFILE --name SendToSlackInteractiveDev --bundle --no-parse --secrets-file .secrets.development --watch SendToSlackInteractive.js",
+    "deploy-send-to-slack-interactive": "wt create --profile $WEBTASK_PROFILE --name SendToSlackInteractive --bundle --no-parse --secrets-file .secrets.production SendToSlackInteractive.js",
+    "dev-receive-slack-interaction": "wt create --profile $WEBTASK_PROFILE --name ReceiveSlackInteractionDev --bundle --secrets-file .secrets.development --watch ReceiveSlackInteraction.js",
+    "deploy-receive-slack-interaction": "wt create --profile $WEBTASK_PROFILE --name ReceiveSlackInteraction --bundle --secrets-file .secrets.production ReceiveSlackInteraction.js",
+    "dev-send-keen-report-to-slack": "wt create --profile $WEBTASK_PROFILE --name SendKeenReportToSlackDev --bundle --secrets-file .secrets.development --watch SendKeenReportToSlack.js",
+    "schedule-send-keen-report-to-slack-dev": "wt cron schedule --profile $WEBTASK_PROFILE --name SendKeenReportToSlack --bundle --secrets-file .secrets.development \"0 8 * * *\" SendKeenReportToSlack.js",
+    "dev-send-to-helpscout": "wt create --profile $WEBTASK_PROFILE --name SendToHelpScoutDev --bundle --no-parse --secrets-file .secrets.development --watch SendToHelpScout.js",
+    "deploy-send-to-helpscout": "wt create --profile $WEBTASK_PROFILE --name SendToHelpScout --bundle --no-parse --secrets-file .secrets.production SendToHelpScout.js"
   },
   "dependencies": {
     "body-parser": "^1.17.1",
     "express": "4.15.x",
+    "keen-analysis": "^1.2.2",
     "keen-tracking": "^1.1.3",
     "lodash.find": "^4.6.0",
     "lodash.map": "^4.6.0",

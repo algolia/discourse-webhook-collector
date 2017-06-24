@@ -1,0 +1,24 @@
+payload={
+	"actions": [
+		{
+			"name": "topic-created-options",
+			"type": "button",
+			"value": "community"
+		}
+	],
+	"callback_id": "{\"topic\":{\"id\":1178},\"category\":{\"id\":4,\"name\":\"Staff\",\"slug\":\"staff\"},\"user\":{\"id\":1,\"name\":\"Josh\",\"username\":\"dzello\",\"email\":\"foo@foo.com\"}}",
+	"team": {
+	},
+	"channel": {
+	},
+	"user": {
+		"name": "josh",
+		"email": "foo@foo.com"
+	},
+	"original_message": {
+		"text": "",
+		"attachments": [{}],
+		"type": "message",
+		"subtype": "bot_message"
+	}
+}

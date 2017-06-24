@@ -57,7 +57,7 @@ Here's a breakdown of the command:
 Now that our `SendToConsoleDev` webtask has been created, let's test it with cURL. In a new shell, export a `url` variable that points to your webtask profile domain:
 
 ```
-export url=https://<your-subdomain>.<region-subdomain>.webtask.io
+export WEBTASK_URL=https://<your-subdomain>.<region-subdomain>.webtask.io
 ```
 
 Now, run a command shortcut that will send a cURL request to your new webtask using a JSON file in the `test` directory of this repository:
@@ -70,7 +70,7 @@ Which is just a shortcut for:
 
 ```
 # you don't need to run this
-curl -X POST $url/SendToConsoleDev --data '@./test/DiscourseTopicEvent.json' --header 'Content-Type: application/json' --header 'x-discourse-event-type: topic' --header 'x-discourse-event: topic_created'
+curl -X POST $WEBTASK_URL/SendToConsoleDev --data '@./test/DiscourseTopicEvent.json' --header 'Content-Type: application/json' --header 'x-discourse-event-type: topic' --header 'x-discourse-event: topic_created'
 ```
 
 You should see this output in the log of your webtask:
@@ -137,7 +137,7 @@ DISCOURSE_API_KEY=<my-discourse-api-key>
 Before beginning, create an [incoming webhook](https://api.slack.com/incoming-webhooks) using the Slack API pointing to the channel where you want Discourse activity to go to. Copy the webhook URL and add it to the secrets files. (You may want to use different values for `.secrets.development` and `.secrets.production` if you'd like to separate your testing from live messages.)
 
 ```
-SLACK_WEBHOOK_URL=<my-slack-webhook-url>
+SEND_TO_SLACK_WEBHOOK_URL=<my-slack-webhook-url>
 ```
 
 Next, deploy the development version of the `SendToSlack` webtask:
