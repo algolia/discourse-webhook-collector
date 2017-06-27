@@ -46,7 +46,7 @@ server.post('/', (req, res) => {
       });
     }
 
-    if (discourseEventType === 'topic') {
+    else if (discourseEventType === 'topic') {
       perEventPromise = discourse.getDiscourseTopic(data.topic.id, context).then((topicApiResponse) => {
         const actorUsername = topicApiResponse.details.created_by.username;
         const categoryId = topicApiResponse.category_id;
@@ -66,7 +66,7 @@ server.post('/', (req, res) => {
       });
     }
 
-    if (discourseEventType === 'post') {
+    else if (discourseEventType === 'post') {
       perEventPromise = discourse.getDiscoursePost(data.post.id, context).then((postApiResponse)  => {
         return discourse.getDiscourseTopic(postApiResponse.topic_id, context).then((topicApiResponse) => {
           const categoryId = topicApiResponse.category_id;
@@ -88,33 +88,32 @@ server.post('/', (req, res) => {
           });
         });
       });
-    }
-
-    if (skip) {
-
-      console.log('SendToKeen Skipped');
-      res.json({ ok: true, skipped: true });
 
     } else {
 
-      return perEventPromise.then(() => {
-
-        return keen.recordKeenEvent(keenCollectionName, keenEventBase, context);
-
-      }).then(() => {
-
-        console.log('SendToKeen Success');
-        res.json({ ok: true, skipped: false });
-
-      }).catch((error) => {
-
-        console.error('SendToKeen Failure', error);
-        console.trace(error);
-        res.status(500).send(error);
-
-      });
+      res.json({ ok: false, reason: `Unsupported event: ${discourseEvent}` });
+      return;
 
     }
+
+    return perEventPromise.then(() => {
+
+      if (!skip) {
+        return keen.recordKeenEvent(keenCollectionName, keenEventBase, context);
+      }
+
+    }).then(() => {
+
+      console.log(`SendToKeen Success, skipped=${skip}`);
+      res.json({ ok: true, skipped: skip });
+
+    }).catch((error) => {
+
+      console.error('SendToKeen Failure', error);
+      console.trace(error);
+      res.status(500).send(error);
+
+    });
 
   } catch (error) {
     console.error('SendToKeen Error', error);
