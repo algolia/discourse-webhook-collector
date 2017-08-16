@@ -38,10 +38,7 @@ server.post('/', (req, res) => {
 
               const topicLink = `${discourse.link(`t/${topicApiResponse.slug}/${topicApiResponse.id}`, context)}`;
 
-              var body = '';
-              body += postApiResponse.raw + '\n\n';
-              body += `<a href='${topicLink}'>${topicLink}</a>`;
-
+              var body = helpscout.toFormattedMessage(postApiResponse.cooked, topicLink);
               return helpscout.createHelpscoutConversation({
                 mailbox: context.secrets.HELPSCOUT_MAILBOX_ID,
                 email: userApiResponse.user.email,

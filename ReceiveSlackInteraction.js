@@ -33,32 +33,32 @@ module.exports = (context, cb) => {
 
   var topic;
 
-  return discourse.getDiscourseTopic(callbackPayload.topic.id, context).then((apiResponseTopic) => {
-    topic = apiResponseTopic;
-    return shouldDispatch
-      ? (() => {
+  return discourse.getDiscourseTopic(callbackPayload.topic.id, context).then((topicApiResponse) => {
+    topic = topicApiResponse;
+    const postId = topicApiResponse.post_stream.posts[0].id;
+    return discourse.getDiscoursePost(postId, context).then((postApiResponse) => {
+      return shouldDispatch
+        ? (() => {
 
-        const mailbox = action.value === 'community' ? COMMUNITY_MAILBOX : SUPPORT_MAILBOX;
-        const mailboxLink = `https://secure.helpscout.net/mailbox/${mailbox.slug}`;
-        attachment.footer = `Dispatched to <${mailboxLink}|${mailbox.name}> mailbox by <@${slackUsername}|${slackUsername}>`;
+          const mailbox = action.value === 'community' ? COMMUNITY_MAILBOX : SUPPORT_MAILBOX;
+          const mailboxLink = `https://secure.helpscout.net/mailbox/${mailbox.slug}`;
+          attachment.footer = `Dispatched to <${mailboxLink}|${mailbox.name}> mailbox by <@${slackUsername}|${slackUsername}>`;
 
-        var body = '';
-        body += attachment.text + '\n\n';
-        body += `<a href='${attachment.title_link}'>${attachment.title_link}</a>`;
-        return helpscout.createHelpscoutConversation({
-          mailbox: mailbox.id,
-          email: callbackPayload.user.email,
-          subject: topic.title,
-          body: body,
-          tags: ['discourse'].concat(topic.tags).concat(callbackPayload.category.slug ? callbackPayload.category.slug : [])
-        }, context);
+          var body = helpscout.toFormattedMessage(postApiResponse.cooked, attachment.title_link);
+          return helpscout.createHelpscoutConversation({
+            mailbox: mailbox.id,
+            email: callbackPayload.user.email,
+            subject: topic.title,
+            body: body,
+            tags: ['discourse'].concat(topic.tags).concat(callbackPayload.category.slug ? callbackPayload.category.slug : [])
+          }, context);
 
-      })()
-      : new Promise((resolve) => {
-        attachment.footer = `Dismissed by <@${slackUsername}|${slackUsername}>`;
-        resolve();
-      });
-
+        })()
+        : new Promise((resolve) => {
+          attachment.footer = `Dismissed by <@${slackUsername}|${slackUsername}>`;
+          resolve();
+        });
+    });
   }).then(() => {
 
     return keen.recordKeenEvent('slack_button_clicked', {
