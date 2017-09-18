@@ -41,7 +41,7 @@ server.post('/', (req, res) => {
       const actorUsername = data.user.username;
       perEventPromise = discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
         Object.assign(keenEventBase, {
-          user: keen.userForEvent(userApiResponse)
+          user: keen.userForEvent(userApiResponse, context)
         });
       });
     }
@@ -57,7 +57,7 @@ server.post('/', (req, res) => {
               skip = true;
             }
             Object.assign(keenEventBase, {
-              user: keen.userForEvent(userApiResponse),
+              user: keen.userForEvent(userApiResponse, context),
               topic: keen.topicForEvent(topicApiResponse),
               category: category ? keen.categoryForEvent(category) : {}
             });
@@ -79,7 +79,7 @@ server.post('/', (req, res) => {
                 skip = true;
               }
               Object.assign(keenEventBase, {
-                user: keen.userForEvent(userApiResponse),
+                user: keen.userForEvent(userApiResponse, context),
                 post: keen.postForEvent(postApiResponse),
                 topic: keen.topicForEvent(topicApiResponse),
                 category: category ? keen.categoryForEvent(category) : {}
