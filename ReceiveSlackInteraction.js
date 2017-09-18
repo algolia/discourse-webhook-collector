@@ -55,7 +55,7 @@ module.exports = (context, cb) => {
 
         })()
         : new Promise((resolve) => {
-          attachment.footer = `Dismissed by <@${slackUsername}|${slackUsername}>`;
+          attachment.footer = `Dismissed by @${slackUsername}`;
           resolve();
         });
     });
