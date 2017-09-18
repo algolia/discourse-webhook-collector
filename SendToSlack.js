@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 
 var discourse = require('./lib/discourse');
 var slack = require('./lib/slack');
+var find = require('lodash.find');
 
 var server = Express();
 
@@ -27,9 +28,22 @@ server.post('/', (req, res) => {
     let skipped = false;
     let perEventPromise;
 
+    function filterUserOut(user) {
+      // if you set DISCOURSE_FILTER_GROUP_ID in your secrets, only
+      // activity from that group will be sent to the slack channel
+      let discourseGroupFilter = context.secrets.DISCOURSE_FILTER_GROUP_ID;
+      return discourseGroupFilter &&
+        typeof find(user.groups, { id: parseInt(discourseGroupFilter) }) !== 'object';
+    }
+
     if (discourseEventType === 'user') {
       const actorUsername = data.user.username;
       perEventPromise = discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
+
+        if (filterUserOut(userApiResponse.user)) {
+          skipped = true;
+          return;
+        }
 
         const user = userApiResponse.user;
         const title = '';
@@ -55,6 +69,11 @@ server.post('/', (req, res) => {
 
             // don't send private messages to slack
             if (topicApiResponse.archetype === 'private_message') {
+              skipped = true;
+              return;
+            }
+
+            if (filterUserOut(userApiResponse.user)) {
               skipped = true;
               return;
             }
@@ -90,6 +109,11 @@ server.post('/', (req, res) => {
 
               // don't send private messages or system posts to slack
               if (topicApiResponse.archetype === 'private_message' || postApiResponse.username === 'system') {
+                skipped = true;
+                return;
+              }
+
+              if (filterUserOut(userApiResponse.user)) {
                 skipped = true;
                 return;
               }
