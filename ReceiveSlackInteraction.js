@@ -42,7 +42,7 @@ module.exports = (context, cb) => {
 
           const mailbox = action.value === 'community' ? COMMUNITY_MAILBOX : SUPPORT_MAILBOX;
           const mailboxLink = `https://secure.helpscout.net/mailbox/${mailbox.slug}`;
-          attachment.footer = `Dispatched to <${mailboxLink}|${mailbox.name}> mailbox by <@${slackUsername}|${slackUsername}>`;
+          attachment.footer = `Dispatched to <${mailboxLink}|${mailbox.name}> mailbox by <@${slackUsername}>`;
 
           var body = helpscout.toFormattedMessage(postApiResponse.cooked, attachment.title_link);
           return helpscout.createHelpscoutConversation({
@@ -55,7 +55,7 @@ module.exports = (context, cb) => {
 
         })()
         : new Promise((resolve) => {
-          attachment.footer = `Dismissed by @${slackUsername}`;
+          attachment.footer = `Dismissed by <@${slackUsername}>`;
           resolve();
         });
     });
