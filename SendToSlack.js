@@ -38,7 +38,7 @@ server.post('/', (req, res) => {
 
     if (discourseEventType === 'user') {
       const actorUsername = data.user.username;
-      perEventPromise = discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
+      perEventPromise = discourse.getDiscourseUserWithAllGroups(actorUsername, context).then((userApiResponse) => {
 
         if (filterUserOut(userApiResponse.user)) {
           skipped = true;
@@ -64,7 +64,7 @@ server.post('/', (req, res) => {
       perEventPromise = discourse.getDiscourseTopic(data.topic.id, context).then((topicApiResponse) => {
         const actorUsername = topicApiResponse.details.created_by.username;
         const categoryId = topicApiResponse.category_id;
-        return discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
+        return discourse.getDiscourseUserWithAllGroups(actorUsername, context).then((userApiResponse) => {
           return discourse.getDiscourseCategory(categoryId, context).then((category) => {
 
             // don't send private messages to slack
@@ -104,7 +104,7 @@ server.post('/', (req, res) => {
         return discourse.getDiscourseTopic(postApiResponse.topic_id, context).then((topicApiResponse) => {
           const categoryId = topicApiResponse.category_id;
           const actorUsername = postApiResponse.username;
-          return discourse.getDiscourseUser(actorUsername, context).then((userApiResponse) => {
+          return discourse.getDiscourseUserWithAllGroups(actorUsername, context).then((userApiResponse) => {
             return discourse.getDiscourseCategory(categoryId, context).then((category) => {
 
               // don't send private messages or system posts to slack
