@@ -10,6 +10,10 @@ Support is currently included for [Slack](https://api.slack.com/), [Keen IO](htt
 
 These webhooks are designed to run on the [webtask.io](https://webtask.io/docs/101) function-as-a-service platform from [Auth0](https://auth0.com). Webtask functions are written in JavaScript and can take advantage of packages on NPM. If you don't have previous webtask experience, I would recommend [taking a tutorial](https://auth0.com/blog/building-serverless-apps-with-webtask/) before working with this repository.
 
+## Support
+
+There are a few moving parts here. If you run into any trouble getting up and running, the Algolia team is happy to lend a hand. Just send an email to [community@algolia.com](mailto:community@algolia.com).
+
 ## Prerequisites
 
 You will need admin access to running Discourse instance and [wt-cli](https://github.com/auth0/wt-cli) with an active webtask profile. Depending on which webhooks you want to use, you will need access to projects and API keys for the various supported services.
