@@ -1,6 +1,6 @@
 # discourse-webhook-collector
 
-[Discourse](https://discourse.org) has [webhooks](https://meta.discourse.org/t/setting-up-webhooks/49045). These are very helpful for connecting Discourse to other things so you can [scale your community](https://speakerdeck.com/dzello/scaling-community-by-webhooking-the-things).
+[Discourse](https://discourse.org) has [webhooks](https://meta.discourse.org/t/setting-up-webhooks/49045). These are very helpful for connecting Discourse to other things so you can [scale your community support](https://devrel.net/developer-experience/scale-community-support-apis).
 
 This repository contains a set of functions that catch Discourse webhooks, transform or enrich the JSON payload, and then call other downstream APIs and SaaS services.
 
