@@ -22,6 +22,8 @@ module.exports = (context, cb) => {
     return;
   }
 
+  const mailbox = action.value === 'community' ? COMMUNITY_MAILBOX : SUPPORT_MAILBOX;
+  const mailboxLink = `https://secure.helpscout.net/mailbox/${mailbox.slug}`;
   const shouldDispatch = action.value !== 'dismiss';
 
   const attachment = Object.assign({}, payload.original_message.attachments[0]);
@@ -31,18 +33,23 @@ module.exports = (context, cb) => {
     attachments: [attachment]
   };
 
-  var topic;
+  if (shouldDispatch) {
+    attachment.footer = `Dispatched to <${mailboxLink}|${mailbox.name}> mailbox by <@${slackUsername}>`;
+  } else {
+    attachment.footer = `Dismissed by <@${slackUsername}>`;
+  }
 
+  // return to slack immediately to avoid timeouts
+  // todo: implement calling return_url if errors happen
+  cb(null, response);
+
+  var topic;
   return discourse.getDiscourseTopic(callbackPayload.topic.id, context).then((topicApiResponse) => {
     topic = topicApiResponse;
     const postId = topicApiResponse.post_stream.posts[0].id;
     return discourse.getDiscoursePost(postId, context).then((postApiResponse) => {
       return shouldDispatch
         ? (() => {
-
-          const mailbox = action.value === 'community' ? COMMUNITY_MAILBOX : SUPPORT_MAILBOX;
-          const mailboxLink = `https://secure.helpscout.net/mailbox/${mailbox.slug}`;
-          attachment.footer = `Dispatched to <${mailboxLink}|${mailbox.name}> mailbox by <@${slackUsername}>`;
 
           var body = helpscout.toFormattedMessage(postApiResponse.cooked, attachment.title_link);
           return helpscout.createHelpscoutConversation({
@@ -76,7 +83,6 @@ module.exports = (context, cb) => {
   }).then(() => {
 
     console.log('ReceiveSlackInteraction Dispatch Success');
-    cb(null, response);
 
   }).catch((error) => {
 
